@@ -92,18 +92,19 @@ AFRAME.registerComponent('countdown-manager', {
         property: 'position',
         from: `${startPos.x} ${startPos.y} ${startPos.z}`,
         to: `${startPos.x + direction} ${startPos.y} ${startPos.z}`,
-        dur: 5000,
+        dur: 10000,
         dir: 'linear',
       });
 
       // Start collision check
       this.checkCollision(targetCannon);
 
+      // Just incase something byebye and breaks
       setTimeout(() => {
         this.animationActive = false;
         this.cannonball.setAttribute('visible', false);
         this.cannonball.removeAttribute('animation');
-      }, 5000);
+      }, 10000);
     },
 
     checkCollision: function(targetCannon) {
@@ -132,6 +133,25 @@ AFRAME.registerComponent('countdown-manager', {
           this.cannonball.setAttribute('visible', false);
           this.cannonball.removeAttribute('animation');
         }
+
+        const camera = this.el.sceneEl.camera; // Get the camera
+        // Project the position into the camera's NDC
+        cannonballPos.project(camera);
+        // Check if the position is out of bounds
+        if (
+            cannonballPos.x < -1 || cannonballPos.x > 1 || // X out of bounds
+            cannonballPos.y < -1 || cannonballPos.y > 1   // Y out of bounds
+        ) {
+          console.log("Cannonball is out of bounds!");
+
+          // Stop animation and make the cannonball invisible
+          this.cannonball.setAttribute('visible', false);
+          this.cannonball.removeAttribute('animation');
+
+          // Reset animation state
+          this.animationActive = false;
+        }
+        
         // Clear interval once the animation is finished
         if (!this.animationActive) {
           clearInterval(collisionInterval);
