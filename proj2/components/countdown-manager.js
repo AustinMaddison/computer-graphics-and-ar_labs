@@ -131,6 +131,9 @@ AFRAME.registerComponent('countdown-manager', {
 
         if (distance < hitboxRadius) {
           console.log("Boom!");
+
+          // Show collision feedback
+          this.showCollisionFeedback(targetCannon);
           
           // Make cannonball invisible and stop animation
           this.animationActive = false;
@@ -142,5 +145,23 @@ AFRAME.registerComponent('countdown-manager', {
           clearInterval(collisionInterval);
         }
       }, 50);
+    },
+
+    showCollisionFeedback: function(targetCannon) {
+      console.log("oH NOoooo ded")
+      const redOutline = document.createElement('a-plane');
+      redOutline.setAttribute('color', 'red');
+      redOutline.setAttribute('width', '1.3'); // Adjust width
+      redOutline.setAttribute('height', '1.3'); // Adjust height
+      redOutline.setAttribute('position', '0 0 0'); // Centered on the cannon
+      redOutline.setAttribute('rotation', '-90 0 0'); // Align horizontally
+
+      // Attach the thing to the target cannon
+      targetCannon.appendChild(redOutline);
+
+      // Remove the thing after 1 second
+      setTimeout(() => {
+        targetCannon.removeChild(redOutline);
+      }, 1000);
     }
   });
