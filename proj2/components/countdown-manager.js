@@ -65,14 +65,7 @@ AFRAME.registerComponent('countdown-manager', {
             this.shootCannonBall();
           }
           
-          // Switch turns
-          this.isGreenTurn = !this.isGreenTurn;
-          this.countdown = 5;
-          
           clearInterval(timer);
-          setTimeout(() => {
-            this.startCountdown();
-          }, 500);
         }
       }, 1000);
     },
@@ -99,7 +92,7 @@ AFRAME.registerComponent('countdown-manager', {
         property: 'position',
         from: `${startPos.x} ${startPos.y} ${startPos.z}`,
         to: `${startPos.x + direction} ${startPos.y} ${startPos.z}`,
-        dur: 4000,
+        dur: 5000,
         dir: 'linear',
       });
 
@@ -110,7 +103,7 @@ AFRAME.registerComponent('countdown-manager', {
         this.animationActive = false;
         this.cannonball.setAttribute('visible', false);
         this.cannonball.removeAttribute('animation');
-      }, 4000);
+      }, 5000);
     },
 
     checkCollision: function(targetCannon) {
@@ -136,13 +129,15 @@ AFRAME.registerComponent('countdown-manager', {
           this.showCollisionFeedback(targetCannon);
           
           // Make cannonball invisible and stop animation
-          this.animationActive = false;
           this.cannonball.setAttribute('visible', false);
           this.cannonball.removeAttribute('animation');
         }
         // Clear interval once the animation is finished
         if (!this.animationActive) {
           clearInterval(collisionInterval);
+
+          // Switch turn after collision
+          this.switchTurn();
         }
       }, 50);
     },
@@ -161,7 +156,15 @@ AFRAME.registerComponent('countdown-manager', {
 
       // Remove the thing after 1 second
       setTimeout(() => {
+        this.animationActive = false;
         targetCannon.removeChild(redOutline);
       }, 1000);
-    }
+    },
+
+    switchTurn: function () {
+      console.log("Switching turn...");
+      this.isGreenTurn = !this.isGreenTurn;
+      this.countdown = 5;
+      this.startCountdown();
+    },
   });
