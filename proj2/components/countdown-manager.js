@@ -24,6 +24,13 @@ AFRAME.registerComponent('countdown-manager', {
       this.greenCannonPos = new THREE.Vector3();
       this.blueCannonPos = new THREE.Vector3();
 
+      // Cannon tips
+      // Get cannons
+      this.greenTip = document.querySelector('#greenCannon');
+      this.blueTip = document.querySelector('#blueCannon');
+      this.greenTipPos = new THREE.Vector3();
+      this.blueTipPos = new THREE.Vector3();
+
       // Initialize animation state
       this.animationActive = false;
       
@@ -57,13 +64,6 @@ AFRAME.registerComponent('countdown-manager', {
             this.animationActive = true;
             this.shootCannonBall();
           }
-          else {
-            // TODO:: Might be able to remove this code
-            console.log("animation cycle not active ??")
-            this.cannonball.setAttribute('visible', false);
-            this.cannonball.removeAttribute('animation');
-            this.animationActive = false;
-          }
           
           // Switch turns
           this.isGreenTurn = !this.isGreenTurn;
@@ -80,13 +80,15 @@ AFRAME.registerComponent('countdown-manager', {
     shootCannonBall: function() {
       console.log("Shoot cannon")
       // Get world positions of both markers
-      this.greenCannon.object3D.getWorldPosition(this.greenCannonPos);
-      this.blueCannon.object3D.getWorldPosition(this.blueCannonPos);
+      this.greenTip.object3D.getWorldPosition(this.greenTipPos);
+      this.blueTip.object3D.getWorldPosition(this.blueTipPos);
+
+      // TODO:: Render at the dog fucking crap bitch ass cannon tip
 
       // Make cannonball visible
       this.cannonball.setAttribute('visible', true);
       // Shoot right if green, left if blue
-      const startPos = this.isGreenTurn ? this.greenCannonPos : this.blueCannonPos;
+      const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
       const direction =  this.isGreenTurn ? 10 : -10;
       
       // Set up animation for the spear
@@ -94,10 +96,8 @@ AFRAME.registerComponent('countdown-manager', {
         property: 'position',
         from: `${startPos.x} ${startPos.y} ${startPos.z}`,
         to: `${startPos.x + direction} ${startPos.y} ${startPos.z}`,
-        dur: 4000,
-        dir: 'alternate',
-        loop: true,
-        easing: 'easeInOutQuad'
+        dur: 2000,
+        dir: 'linear',
       });
       
       // TODO:: Add logic to stop make ball inivisble once it hits the other cannon
