@@ -135,7 +135,6 @@ AFRAME.registerComponent('countdown-manager', {
         // Clear interval once the animation is finished
         if (!this.animationActive) {
           clearInterval(collisionInterval);
-
           // Switch turn after collision
           this.switchTurn();
         }
@@ -164,7 +163,6 @@ AFRAME.registerComponent('countdown-manager', {
     switchTurn: function () {
       console.log("Switching turn...");
       this.isGreenTurn = !this.isGreenTurn;
-      this.countdown = 5;
       this.startCountdown();
     },
   });
