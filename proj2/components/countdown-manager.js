@@ -26,8 +26,8 @@ AFRAME.registerComponent('countdown-manager', {
 
       // Cannon tips
       // Get cannons
-      this.greenTip = document.querySelector('#greenCannon');
-      this.blueTip = document.querySelector('#blueCannon');
+      this.greenTip = document.querySelector('#greenCannonTip');
+      this.blueTip = document.querySelector('#blueCannonTip');
       this.greenTipPos = new THREE.Vector3();
       this.blueTipPos = new THREE.Vector3();
 
