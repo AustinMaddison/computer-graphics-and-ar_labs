@@ -351,7 +351,7 @@ int main()
 
         tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize * roomHeightFactor, roomSize) * 0.5f);
         rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0));
-        scaMat = glm::scale(glm::mat4(1.0f), glm::vec3(roomSize, roomSize, roomSize * roomHeightFactor));
+        scaMat = glm::scale(glm::mat4(1.0f), glm::vec3(roomSize, roomSize, roomSize * roomHeightFactor));   
         model = tranMat * rotMat * scaMat;
 
         for (int i = 0; i < 4; i++)
@@ -386,7 +386,6 @@ int main()
             scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size * 2.0f);
             model = tranMat * scaMat * rotMat;
             model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model;
-
 
             paintingShader.setMat4("model", model);
 
@@ -603,42 +602,42 @@ unsigned int loadTexture(char const* path)
     return textureID;
 }
 
-unsigned int loadTexture(char const* path, int* width, int* height)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int nrComponents;
-    unsigned char* data = stbi_load(path, width, height, &nrComponents, 0);
-    if (data)
+    unsigned int loadTexture(char const* path, int* width, int* height)
     {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, *width, *height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        int nrComponents;
+        unsigned char* data = stbi_load(path, width, height, &nrComponents, 0);
+        if (data)
+        {
+            GLenum format;
+            if (nrComponents == 1)
+                format = GL_RED;
+            else if (nrComponents == 3)
+                format = GL_RGB;
+            else if (nrComponents == 4)
+                format = GL_RGBA;
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, *width, *height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
 
-        stbi_image_free(data);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Texture failed to load at path: " << path << std::endl;
+            stbi_image_free(data);
+        }
+
+        return textureID;
     }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
-}
 
 
 
