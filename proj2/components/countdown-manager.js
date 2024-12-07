@@ -8,6 +8,13 @@ AFRAME.registerComponent('countdown-manager', {
       this.isGreenTurn = true; // Start with green
       this.countdown = 5;
       this.isRunning = false;
+      this.gameOver = false;
+      
+      // references to hp
+      this.blueHp = document.querySelector('#blueHp');
+      this.greenHp = document.querySelector('#greenHp');
+      this.blueHpAmt = 3
+      this.greenHpAmt = 3
 
       // Get references to both text elements
       this.greenText = document.querySelector('#greenTimer');
@@ -78,7 +85,9 @@ AFRAME.registerComponent('countdown-manager', {
       
       // Shoot right if green, left if blue
       const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
+      const isGreenTurn = this.isGreenTurn;
       const targetCannon = this.isGreenTurn ? this.blueCannon : this.greenCannon;
+      const targetHp = this.isGreenTurn ? this.blueHp : this.greenHp;
       console.log("targetCannong", this.isGreenTurn ? "blue" : "green");
       const direction =  this.isGreenTurn ? 1 : -1;
 
@@ -131,7 +140,7 @@ AFRAME.registerComponent('countdown-manager', {
       requestAnimationFrame(animate);
 
       // Check for collisions during the flight
-      this.checkCollision(targetCannon);
+      this.checkCollision(isGreenTurn);
 
       // Just incase something byebye and breaks
       setTimeout(() => {
@@ -141,9 +150,18 @@ AFRAME.registerComponent('countdown-manager', {
       }, 10000);
     },
 
-    checkCollision: function(targetCannon) {
+    checkCollision: function(isGreenTurn) {
+      
+      targetCannon = isGreenTurn ? this.blueCannon : this.greenCannon;
+
+      let collisionDetected = false; // Add a flag to prevent multiple deductions
+      
       // Check for collision every 50ms
       const collisionInterval = setInterval(() => {
+        if (collisionDetected || !this.animationActive) {
+          clearInterval(collisionInterval);
+          return; // Exit if a collision has been handled or animation is inactive
+        }
         // Get positions of cannonball and target cannon
         const cannonballPos = new THREE.Vector3();
         const targetCannonPos = new THREE.Vector3();
@@ -165,10 +183,9 @@ AFRAME.registerComponent('countdown-manager', {
         const hitboxRadius = 0.8;
 
         if (distance < hitboxRadius) {
-          console.log("Boom!");
-
+          collisionDetected = true; // Set the flag to true
           // Show collision feedback
-          this.showCollisionFeedback(targetCannon);
+          this.showCollisionFeedback(isGreenTurn);
           
           // Make cannonball invisible and stop animation
           this.cannonball.setAttribute('visible', false);
@@ -194,7 +211,7 @@ AFRAME.registerComponent('countdown-manager', {
         }
         
         // Clear interval once the animation is finished
-        if (!this.animationActive) {
+        if (!this.animationActive || collisionDetected) {
           clearInterval(collisionInterval);
           // Switch turn after collision
           this.switchTurn();
@@ -202,8 +219,10 @@ AFRAME.registerComponent('countdown-manager', {
       }, 50);
     },
 
-    showCollisionFeedback: function(targetCannon) {
-      console.log("oH NOoooo ded")
+    showCollisionFeedback: function(isGreenTurn) {
+      this.handleHp(isGreenTurn)
+      
+      const targetCannon = isGreenTurn ? this.blueCannon : this.greenCannon;
       const redOutline = document.createElement('a-plane');
       redOutline.setAttribute('color', 'red');
       redOutline.setAttribute('width', '1.1'); // Adjust width (10% larger)
@@ -220,11 +239,58 @@ AFRAME.registerComponent('countdown-manager', {
         targetCannon.removeChild(redOutline);
       }, 1000);
     },
+  
+    handleHp(isGreenTurn) {
+      const targetHp = isGreenTurn ? this.blueHp : this.greenHp;
+      const targetHpAmt = isGreenTurn ? this.blueHpAmt : this.greenHpAmt;
+      
+      // Decrease HP
+      targetHp.setAttribute('value', 'Health: ' + (targetHpAmt-1));
+      if (isGreenTurn) {
+        this.blueHpAmt--;
+      } else {
+        this.greenHpAmt--;
+      }
+      console.log("Losing hp to", targetHpAmt);
+      if (this.blueHpAmt <= 0 || this.greenHpAmt <= 0) {
+        this.gameOver = true;
+        console.log("Game Over!");
+      }
+    },
+
+    resetHp() {
+      // Show win/lose messages
+      if (this.blueHpAmt <= 0) {
+        this.blueHp.setAttribute('value', "You Lose");
+        this.greenHp.setAttribute('value', "You Win");
+      } else {
+        this.greenHp.setAttribute('value', "You Lose");
+        this.blueHp.setAttribute('value', "You Win");
+      }
+  
+      // Wait 5 seconds before resetting the health
+      setTimeout(() => {
+        this.blueHpAmt = 3;
+        this.greenHpAmt = 3;
+        this.greenHp.setAttribute('value', 'Health: ' + this.greenHpAmt);
+        this.blueHp.setAttribute('value', 'Health: ' + this.blueHpAmt);
+        this.gameOver = false;
+        this.switchTurn();
+      }, 5000);
+    },
+
 
     switchTurn: function () {
-      console.log("Switching turn...");
-      this.isGreenTurn = !this.isGreenTurn;
-      this.startCountdown();
+      console.log("Check if game over");
+      if (this.gameOver) {
+        console.log("Game over, resetting HP...");
+        this.resetHp();
+      }
+      else {
+        console.log("Switching turn...");
+        this.isGreenTurn = !this.isGreenTurn;
+        this.startCountdown(); 
+      }
     },
   });
 
