@@ -75,8 +75,6 @@ AFRAME.registerComponent('countdown-manager', {
       // Get world positions of both markers
       this.greenTip.object3D.getWorldPosition(this.greenTipPos);
       this.blueTip.object3D.getWorldPosition(this.blueTipPos);
-
-      // TODO:: Render at the dog fucking crap bitch ass cannon tip
       
       // Shoot right if green, left if blue
       const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
@@ -165,8 +163,8 @@ AFRAME.registerComponent('countdown-manager', {
       console.log("oH NOoooo ded")
       const redOutline = document.createElement('a-plane');
       redOutline.setAttribute('color', 'red');
-      redOutline.setAttribute('width', '1.3'); // Adjust width
-      redOutline.setAttribute('height', '1.3'); // Adjust height
+      redOutline.setAttribute('width', '1.1'); // Adjust width (10% larger)
+      redOutline.setAttribute('height', '1.1'); // Adjust height (10% larger)
       redOutline.setAttribute('position', '0 0 0'); // Centered on the cannon
       redOutline.setAttribute('rotation', '-90 0 0'); // Align horizontally
 
@@ -186,3 +184,7 @@ AFRAME.registerComponent('countdown-manager', {
       this.startCountdown();
     },
   });
+
+// TODO:: Position at cannon tip
+// TODO:: Make the ball abit faster
+// TODO:: Parabolic Motion for ball
