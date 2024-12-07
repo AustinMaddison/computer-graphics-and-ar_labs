@@ -79,22 +79,58 @@ AFRAME.registerComponent('countdown-manager', {
       // Shoot right if green, left if blue
       const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
       const targetCannon = this.isGreenTurn ? this.blueCannon : this.greenCannon;
-      const direction =  this.isGreenTurn ? 10 : -10;
+      console.log("targetCannong", this.isGreenTurn ? "blue" : "green");
+      const direction =  this.isGreenTurn ? 1 : -1;
+
+      // Set initial velocity components
+      const initialVelocity = 5; // Modify this value to adjust the cannonball's speed
+      const gravity = 9.8; // Gravity acceleration
+      const angle = Math.PI / 4; // 45 degrees for a standard parabolic trajectory
+      // Split initial velocity into horizontal and vertical components
+      const v_x = initialVelocity * Math.cos(angle);
+      const v_y = initialVelocity * Math.sin(angle);
+      
       // Reset cannonball position to the starting position
       this.cannonball.object3D.position.set(startPos.x, startPos.y, startPos.z);
       // Make cannonball visible
       this.cannonball.setAttribute('visible', true);
 
-      // Set up animation for the spear
-      this.cannonball.setAttribute('animation', {
-        property: 'position',
-        from: `${startPos.x} ${startPos.y} ${startPos.z}`,
-        to: `${startPos.x + direction} ${startPos.y} ${startPos.z}`,
-        dur: 10000,
-        dir: 'linear',
-      });
+      // Start the animation loop to simulate parabolic motion
+      let startTime = null;
+      const duration = 5000; // Duration of the entire flight in milliseconds
+      const totalTime = duration / 1000; // Convert to seconds
+      let elapsedTime = 0;
 
-      // Start collision check
+      const animate = (timestamp) => {
+        if (!startTime) startTime = timestamp;
+        elapsedTime = (timestamp - startTime) / 1000; // Elapsed time in seconds
+
+        // Calculate new position based on parabolic equations
+        const deltaX = v_x * elapsedTime; // Horizontal displacement
+        const deltaY = v_y * elapsedTime - (0.5 * gravity * Math.pow(elapsedTime, 2)); // Vertical displacement
+
+        // Update the cannonball's position
+        this.cannonball.object3D.position.set(startPos.x + deltaX * direction, startPos.y + deltaY, startPos.z);
+
+        // stop when overtime
+        if (elapsedTime >= totalTime) {
+          console.log("timeout");
+          this.cannonball.setAttribute('visible', false); // Hide the cannonball after impact
+          this.animationActive = false; // Reset animation state
+          return;
+        }
+
+        // Continue the animation
+        if (this.animationActive) {
+          requestAnimationFrame(animate); // Continue the animation loop
+        }
+      };
+
+      // Start the animation loop
+      this.animationActive = true;
+      requestAnimationFrame(animate);
+
+      // Check for collisions during the flight
       this.checkCollision(targetCannon);
 
       // Just incase something byebye and breaks
@@ -115,8 +151,15 @@ AFRAME.registerComponent('countdown-manager', {
         this.cannonball.object3D.getWorldPosition(cannonballPos);
         targetCannon.object3D.getWorldPosition(targetCannonPos);
         
-        // Calculate distance between cannonball and target cannon
-        const distance = cannonballPos.distanceTo(targetCannonPos);
+        // Calculate distance between cannonball and target cannon 
+        // const distance = cannonballPos.distanceTo(targetCannonPos); -> Doesn't work cuz z axis is trolling me
+
+        // Calculate the distance between cannonball and target cannon, ignoring the z-axis
+        const dx = cannonballPos.x - targetCannonPos.x; 
+        const dy = cannonballPos.y - targetCannonPos.y; 
+
+        // Calculate the 2D distance
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
         // Radius according to how we rnder the cannons
         const hitboxRadius = 0.8;
@@ -186,5 +229,4 @@ AFRAME.registerComponent('countdown-manager', {
   });
 
 // TODO:: Position at cannon tip
-// TODO:: Make the ball abit faster
-// TODO:: Parabolic Motion for ball
+// TODO:: Parabolic Motion for ball -> Make it dynamic by changing angle, speed, etc
