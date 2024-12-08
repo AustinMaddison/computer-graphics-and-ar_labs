@@ -104,6 +104,10 @@ AFRAME.registerComponent('countdown-manager', {
       // Make cannonball visible
       this.cannonball.setAttribute('visible', true);
 
+      // Play shoot cannon sound effect
+      const shootSound = document.querySelector('#cannonSound')
+      shootSound.components.sound.playSound();
+
       // Start the animation loop to simulate parabolic motion
       let startTime = null;
       const duration = 5000; // Duration of the entire flight in milliseconds
