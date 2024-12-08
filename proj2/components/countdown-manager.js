@@ -3,6 +3,26 @@
  * @component countdown-manager
  * @description Manages turn-based countdown system between two cannons
  */
+AFRAME.registerComponent('sound-control', {
+  init: function () {
+    // Get the background music element
+    const bgSound = document.querySelector('#bgSound');
+
+    // press M to mute
+    window.addEventListener('keydown', (event) => {
+      if (event.key === '1') { 
+        bgSound.components.sound.stopSound();
+      }
+      if (event.key === '2') {
+        bgSound.components.sound.pauseSound();
+      }
+      if (event.key === '3') {{
+        bgSound.components.sound.playSound();
+      }}
+    });
+  }
+})
+
 AFRAME.registerComponent('countdown-manager', {
     init: function() {
       this.isGreenTurn = true; // Start with green
@@ -308,4 +328,3 @@ AFRAME.registerComponent('countdown-manager', {
   });
 
 // TODO:: Position at cannon tip
-// TODO:: Parabolic Motion for ball -> Make it dynamic by changing angle, speed, etc

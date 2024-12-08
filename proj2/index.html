@@ -21,11 +21,22 @@
         <img id="cannonImgBlue" src="assets/cannon_blue.jpg">
       </a-assets>
 
-      <a-sound src="assets/bg1.mp3" autoplay="true" loop="true" volume="0.5"></a-sound>
+      <a-sound src="assets/bg1.mp3" id="bgSound" autoplay="true" loop="true" volume="0.5" sound-control></a-sound>
       <a-sound src="assets/cannon_shoot.mp3" id="cannonSound"></a-sound>
       <a-sound src="assets/countdownV3.mp3" id="countdown"></a-sound>
 
       <a-entity countdown-manager></a-entity>
+
+      <!-- TODO:: Render text -->
+      <a-text
+              id="greenHp"
+              position="0 0 0.7"
+              rotation="-90 180 0"
+              align="center"
+              color="#000000"
+              scale="1.2 1.2 1.2"
+              value="Health: 3">
+      </a-text>
       
       <!-- Marker 0: Green cannon -->
       <a-marker type="barcode" value="0">
