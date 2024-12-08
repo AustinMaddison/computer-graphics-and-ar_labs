@@ -10,6 +10,9 @@ AFRAME.registerComponent('countdown-manager', {
       this.isRunning = false;
       this.gameOver = false;
       
+      // countdown sound
+      this.countdownSound = document.querySelector('#countdown');
+      
       // references to hp
       this.blueHp = document.querySelector('#blueHp');
       this.greenHp = document.querySelector('#greenHp');
@@ -63,9 +66,15 @@ AFRAME.registerComponent('countdown-manager', {
           this.greenText.setAttribute('value', '');
         }
         
+        if (this.countdown === 5) {
+            // Play countdown sound effect
+          this.countdownSound.components.sound.playSound();
+        }
+        
         this.countdown--;
         
         if (this.countdown < 0) {
+          this.countdownSound.components.sound.stopSound();
           // Shoot cannonball
           if (!this.animationActive) {
             this.animationActive = true;
