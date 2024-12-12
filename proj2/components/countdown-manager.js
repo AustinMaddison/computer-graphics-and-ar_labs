@@ -322,5 +322,3 @@ AFRAME.registerComponent('countdown-manager', {
       }
     },
   });
-
-// TODO:: Position at cannon tip
