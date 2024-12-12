@@ -115,10 +115,12 @@ AFRAME.registerComponent('countdown-manager', {
       // Shoot right if green, left if blue
       const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
       const isGreenTurn = this.isGreenTurn;
-      const targetCannon = this.isGreenTurn ? this.blueCannon : this.greenCannon;
-      const targetHp = this.isGreenTurn ? this.blueHp : this.greenHp;
-      console.log("targetCannong", this.isGreenTurn ? "blue" : "green");
       const direction =  this.isGreenTurn ? 1 : -1;
+
+      // Reset cannonball position to the starting position
+      this.cannonball.object3D.position.set(startPos.x, startPos.y, startPos.z);
+      // Make cannonball visible
+      this.cannonball.setAttribute('visible', true);
 
       // Set initial velocity components
       const initialVelocity = 5; // Modify this value to adjust the cannonball's speed
@@ -127,11 +129,6 @@ AFRAME.registerComponent('countdown-manager', {
       // Split initial velocity into horizontal and vertical components
       const v_x = initialVelocity * Math.cos(angle);
       const v_y = initialVelocity * Math.sin(angle);
-      
-      // Reset cannonball position to the starting position
-      this.cannonball.object3D.position.set(startPos.x, startPos.y, startPos.z);
-      // Make cannonball visible
-      this.cannonball.setAttribute('visible', true);
 
       // Play shoot cannon sound effect
       const shootSound = document.querySelector('#cannonSound')
@@ -284,7 +281,6 @@ AFRAME.registerComponent('countdown-manager', {
       } else {
         this.greenHpAmt--;
       }
-      console.log("Losing hp to", targetHpAmt);
       if (this.blueHpAmt <= 0 || this.greenHpAmt <= 0) {
         this.gameOver = true;
         console.log("Game Over!");
