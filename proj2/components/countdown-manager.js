@@ -3,32 +3,11 @@
  * @component countdown-manager
  * @description Manages turn-based countdown system between two cannons
  */
-AFRAME.registerComponent('sound-control', {
-  init: function () {
-    // Get the background music element
-    const bgSound = document.querySelector('#bgSound');
-
-    // press M to mute
-    window.addEventListener('keydown', (event) => {
-      if (event.key === '1') { 
-        bgSound.components.sound.stopSound();
-      }
-      if (event.key === '2') {
-        bgSound.components.sound.pauseSound();
-      }
-      if (event.key === '3') {{
-        bgSound.components.sound.playSound();
-      }}
-    });
-  }
-})
-
 AFRAME.registerComponent('countdown-manager', {
     init: function() {
       this.isGreenTurn = true; // Start with green
       this.countdown = 5;
       this.isRunning = false;
-      this.gameOver = false;
       
       // countdown sound
       this.countdownSound = document.querySelector('#countdown');
@@ -70,6 +49,12 @@ AFRAME.registerComponent('countdown-manager', {
           this.startCountdown();
         }
       });
+
+      this.el.addEventListener('switch-turn', () => {
+        this.switchTurn();
+      });
+
+      this.healthEntity = document.querySelector('[health-manager]');
     },
   
     startCountdown: function() {
@@ -90,9 +75,9 @@ AFRAME.registerComponent('countdown-manager', {
             // Play countdown sound effect
           this.countdownSound.components.sound.playSound();
         }
-        
+
         this.countdown--;
-        
+
         if (this.countdown < 0) {
           this.countdownSound.components.sound.stopSound();
           // Shoot cannonball
@@ -100,7 +85,7 @@ AFRAME.registerComponent('countdown-manager', {
             this.animationActive = true;
             this.shootCannonBall();
           }
-          
+
           clearInterval(timer);
         }
       }, 1000);
@@ -111,7 +96,7 @@ AFRAME.registerComponent('countdown-manager', {
       // Get world positions of both markers
       this.greenTip.object3D.getWorldPosition(this.greenTipPos);
       this.blueTip.object3D.getWorldPosition(this.blueTipPos);
-      
+
       // Shoot right if green, left if blue
       const startPos = this.isGreenTurn ? this.greenTipPos : this.blueTipPos;
       const isGreenTurn = this.isGreenTurn;
@@ -181,11 +166,11 @@ AFRAME.registerComponent('countdown-manager', {
     },
 
     checkCollision: function(isGreenTurn) {
-      
+
       targetCannon = isGreenTurn ? this.blueCannon : this.greenCannon;
 
       let collisionDetected = false; // Add a flag to prevent multiple deductions
-      
+
       // Check for collision every 50ms
       const collisionInterval = setInterval(() => {
         if (collisionDetected || !this.animationActive) {
@@ -250,8 +235,9 @@ AFRAME.registerComponent('countdown-manager', {
     },
 
     showCollisionFeedback: function(isGreenTurn) {
-      this.handleHp(isGreenTurn)
-      
+      // calls this.handleHp(isGreenTurn)
+      this.healthEntity.emit('collision-detected', { isGreenTurn });
+
       const targetCannon = isGreenTurn ? this.blueCannon : this.greenCannon;
       const redOutline = document.createElement('a-plane');
       redOutline.setAttribute('color', 'red');
@@ -269,56 +255,10 @@ AFRAME.registerComponent('countdown-manager', {
         targetCannon.removeChild(redOutline);
       }, 1000);
     },
-  
-    handleHp(isGreenTurn) {
-      const targetHp = isGreenTurn ? this.blueHp : this.greenHp;
-      const targetHpAmt = isGreenTurn ? this.blueHpAmt : this.greenHpAmt;
-      
-      // Decrease HP
-      targetHp.setAttribute('value', 'Health: ' + (targetHpAmt-1));
-      if (isGreenTurn) {
-        this.blueHpAmt--;
-      } else {
-        this.greenHpAmt--;
-      }
-      if (this.blueHpAmt <= 0 || this.greenHpAmt <= 0) {
-        this.gameOver = true;
-        console.log("Game Over!");
-      }
-    },
-
-    resetHp() {
-      // Show win/lose messages
-      if (this.blueHpAmt <= 0) {
-        this.blueHp.setAttribute('value', "You Lose");
-        this.greenHp.setAttribute('value', "You Win");
-      } else {
-        this.greenHp.setAttribute('value', "You Lose");
-        this.blueHp.setAttribute('value', "You Win");
-      }
-  
-      // Wait 5 seconds before resetting the health
-      setTimeout(() => {
-        this.blueHpAmt = 3;
-        this.greenHpAmt = 3;
-        this.greenHp.setAttribute('value', 'Health: ' + this.greenHpAmt);
-        this.blueHp.setAttribute('value', 'Health: ' + this.blueHpAmt);
-        this.gameOver = false;
-        this.switchTurn();
-      }, 5000);
-    },
-
 
     switchTurn: function () {
-      console.log("Check if game over");
-      if (this.gameOver) {
-        console.log("Game over, resetting HP...");
-        this.resetHp();
-      }
-      else {
-        console.log("Switching turn...");
-        this.isGreenTurn = !this.isGreenTurn;
-        this.startCountdown(); 
-      }
+      this.isRunning = true;
+      this.isGreenTurn = !this.isGreenTurn;
+      this.startCountdown();
     },
   });
